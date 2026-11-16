@@ -1,0 +1,19 @@
+用户提供的字体，用于这份私人生日礼物。
+保留字体原始版权与用途信息：
+
+Nishiki
+0: 2008-2021 Umihotaru
+1: Nishiki-teki
+4: Nishiki-teki
+6: Nishiki-teki
+13: Feel free to use for your creative works and other purposes.
+Vi rajtas uzi por viaj kreaj verkoj kaj aliaj celoj.
+14: http://ctan.yazd.ac.ir/macros/luatex/latex/hmtrump/nkd04_playing_cards_index/LICENSE
+
+Warm
+0: Copyright(c) 2023 HanMeiHutong (XiaMen) Technology Co.Ltd. ,All rights reserved.
+1: AaNDWRBWSC (Non-Commercial Use)
+4: AaNDWRBWSC (Non-Commercial Use)
+6: AaNDWRBWSCNon-CommercialUse
+13: Copyright(c) 2023 HanMeiHutong (XiaMen) Technology Co.Ltd..
+
