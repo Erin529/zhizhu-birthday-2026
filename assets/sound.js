@@ -2,6 +2,7 @@
 (() => {
   "use strict";
   const button=document.querySelector("#soundToggle"),label=document.querySelector("#soundLabel");
+  const hint=document.querySelector("#soundHint");
   const media=[...document.querySelectorAll("#birthdaySong, #memoryVideo")];
   let ctx=null,bgmBus=null,fxBus=null,noiseBuffer=null,timer=null;
   let enabled=true,started=false,held=false,playing=false,nextTime=0,beat=0,request=0;
@@ -102,18 +103,32 @@
     }
   }
   function mayPlay(){return enabled&&started&&!held&&!document.hidden;}
+  function showHint(blocked) {
+    if(hint)hint.hidden=!blocked;
+  }
   function wake() {
     if(!mayPlay()||!init())return;
     const token=++request;
     ctx.resume().then(()=>{
       if(token!==request||!mayPlay())return;
+      if(ctx.state!=="running"){showHint(true);return;}
+      showHint(false);
       if(!playing) {
         playing=true;nextTime=ctx.currentTime+.035;
         bgmBus.gain.setValueAtTime(.65,ctx.currentTime);
         schedule();timer=setInterval(schedule,80);paint();
       }
-    }).catch(()=>{halt();});
+    }).catch(()=>{showHint(true);halt();});
   }
+  // Phone browsers, especially WeChat's WebView, only unlock audio inside a user gesture.
+  function unlock() {
+    if(!init()||!ctx||ctx.state!=="suspended")return;
+    ctx.resume().then(()=>showHint(false)).catch(()=>{});
+  }
+  for(const eventName of ["pointerdown","touchend","click"]) {
+    document.addEventListener(eventName,unlock,{once:true,passive:true});
+  }
+  window.addEventListener("WeixinJSBridgeReady",unlock,{once:true});
   function effect(name) {
     if(!ctx||ctx.state!=="running"||!enabled||!started||held||document.hidden)return;
     const at=ctx.currentTime+.008;
@@ -146,7 +161,7 @@
   button.addEventListener("click",()=>{
     if(!started){enabled=true;start();return;}
     enabled=!enabled;request++;
-    if(!enabled){halt();stopVoices("fx");if(ctx)ctx.suspend().catch(()=>{});}
+    if(!enabled){showHint(false);halt();stopVoices("fx");if(ctx)ctx.suspend().catch(()=>{});}
     else {paint();if(started)wake();}
     paint();
   });
@@ -161,7 +176,7 @@
   });
   document.addEventListener("birthday:restart",()=>{
     request++;started=false;held=false;beat=0;nextTime=0;lastDrive=-1;
-    halt();stopVoices();if(ctx)ctx.suspend().catch(()=>{});
+    showHint(false);halt();stopVoices();if(ctx)ctx.suspend().catch(()=>{});
   });
   window.BirthdaySound={start,effect,hold,release,snapshot:()=>({enabled,started,held,playing,context:ctx?.state||"uninitialized",beat,voices:voices.size,effects:{...counts}})};
   if(!(window.AudioContext||window.webkitAudioContext))button.hidden=true;
